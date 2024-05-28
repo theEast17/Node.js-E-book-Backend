@@ -39,7 +39,7 @@ node browser press enter
         so we are using here typsScript so we need it for configure with it because express understand pure js so we need to install types module for it.
 
 
----- how to setup exoress?
+---- how to setup express?
       src->app.ts
         import express -> const app=express() -> export app
       server.ts
@@ -47,6 +47,6 @@ node browser press enter
         first we need to define the port and then the port will be coming from procee.env.PORT -> app.listen(port,()=>{console.log('server connected)})  outside funtion call startServer()
 
   
-
+9th: npm i dotenv  and npm i -D @types/dotenv
 
 
