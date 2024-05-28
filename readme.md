@@ -26,3 +26,6 @@ node browser press enter
 
 5th:- add "dev" script in package.json
 "dev":"nodemon server.ts"
+
+6th:- install ESLint using command  - npm init @eslint/config  
+->ESLint is a widely-used static code analysis tool for identifying and fixing problems in JavaScript and TypeScript code. It helps maintain code quality by enforcing coding standards, catching syntax errors, and flagging potential issues such as unused variables or inconsistent indentation.
