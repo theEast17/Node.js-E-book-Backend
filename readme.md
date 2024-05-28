@@ -77,4 +77,76 @@ node browser press enter
   5>go to atlas and click 
                 -database->browser collection -> collections -> create database and give collection name
   6>click on overview-> connect -> drivers paste it into the env file and called the name whatever you want 
-  in the copied link you have to paste your database name after .mongodb.net/e-Book <- this is your database name 
+  -the copied link you have to paste your database name after .mongodb.net/e-Book <- this is your database name 
+
+
+example:-mongodb+srv://nagarpoorv2001:khushi@cluster0.j2oi1wt.mongodb.  net/?retryWrites=true&w=majority&appName=Cluster0
+
+you have to do like :
+mongodb+srv://nagarpoorv2001:khushi@cluster0.j2oi1wt.mongodb.net/E-book?retryWrites=true&w=majority&appName=Cluster0
+
+now all the setup of backend is done 
+
+connect database to the application using mongoose
+  so you need to make seperate file called db.js which having a function called connectDb() and it would be called into the server.js()
+
+  simple code for connect db.js
+  import mongoose
+    const connectDb=async()=>{
+          try{
+            const con=await mongoose.connect(config.database_url as string)
+
+            or
+
+            const conn = await mongoose.connect(process.env.MERN_URI)
+
+            console.log('connected successfully')
+          }catch(err){
+            console.log(err)
+          }
+      } 
+
+
+the connection is done is done 
+
+
+11th:- error handling
+
+middleware:-Middleware in Express refers to functions that execute during the lifecycle of an HTTP request. They can manipulate the request and response objects, terminate the request-response cycle, or call the next middleware function in the stack. Middleware functions are essential for processing requests, handling errors, and implementing features like authentication and logging.
+
+                              next()      next(err)
+----------     ----------   ----------    ---------    ----------------
+|        |     |        |   | middle |    |Request|    |global        |
+| client |---> | Router |-->|  ware  |--->|handler|--->|error handler |  
+|--------|     |--------|   |--------|    |-------|    |--------------|
+  browser        routes       any           node         error 
+                ex:'/'      function       server        handler 
+
+first request will be sent client to server through router  if there is an authentication so it would be done by middleware the middleware is nothing but a function which call handle the http request and give the response.  and if there is another middleware so it has a function called next() so it will go to te next middleware so on...
+
+suppose all the things done pefectly and we have an error after request handler so from where it give the error so there is we need to make global error handler so request handler will go to the global error and it will give the output 
+
+there is 2 possibilities 
+synchronous and asynchronous 
+
+if sync. then there is no need to pass err parameter
+if async. then there is need to pass err parameter
+
+
+there would be 4 parameter in error handler function in other function there is 3 parameter 
+
+-simple funtion in node.js
+
+      app.get('/',(req,res,next)=>{
+          res.json({message:'hello'})
+      })
+
+      request, response, next 
+
+-error handler function
+
+app.use((err,req,res,next)=>{
+  
+})
+
+          
