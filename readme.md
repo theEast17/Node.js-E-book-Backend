@@ -50,3 +50,31 @@ node browser press enter
 9th: npm i dotenv  and npm i -D @types/dotenv
 
 
+10th: install mongoose  and types for it 
+  why we need mongoose->
+    -mongoose is a ODM(object data modeling) library form mongodb and node js
+    -advantages - schema definitions 
+                - data validation
+                - middleware
+                - query building
+                - model relationship
+
+    - in simple words - 
+      we have application and we have a mongodb database and we are sending the request from client means application to server means our database which will be fetch the data.
+
+      so we are fetching the data from the mongo using mongoose. because we have a browser which is running on windows and if we have the other browser which is runnning on mac,linux or anything else then there will be an issue with mongodb so for that we use mongoose for creating and validating the schema    
+
+      we are directly communicate with mongoose rather than mongodb
+
+      npm i mongoose   
+      npm i -D @types/mongoose
+
+-MongoDb Setup
+  1>open mongodb atlas login and create a new project
+  2>create cluster and there will be a free option
+  3>give username and password add live ip address and create 
+  4>click on connect then click on compass and paste the link to the mongodb compass and connect it
+  5>go to atlas and click 
+                -database->browser collection -> collections -> create database and give collection name
+  6>click on overview-> connect -> drivers paste it into the env file and called the name whatever you want 
+  in the copied link you have to paste your database name after .mongodb.net/e-Book <- this is your database name 
