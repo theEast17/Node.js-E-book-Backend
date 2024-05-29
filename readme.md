@@ -1,3 +1,32 @@
+HTTP response status codes :
+
+1. Informational Responses (100–199)
+   100 Continue
+   101 Switching Protocols
+2. Successful Responses (200–299)
+   200 OK: The request was successful, and the server returned the requested resource.
+   201 Created: The request was successful, and a new resource was created.
+   202 Accepted: The request has been accepted for processing, but the processing is not complete.
+   204 No Content: The server successfully processed the request, but there is no content to send in the response.
+3. Redirection Messages (300–399)
+   301 Moved Permanently: The resource requested has been permanently moved to a new URL.
+   302 Found: The resource requested is temporarily available at a different URL.
+   304 Not Modified: The resource has not been modified since the last request.
+4. Client Error Responses (400–499)
+   400 Bad Request: The server could not understand the request due to invalid syntax.
+   401 Unauthorized: The client must authenticate itself to get the requested response.
+   403 Forbidden: The client does not have access rights to the content.
+   404 Not Found: The server cannot find the requested resource.
+   405 Method Not Allowed: The request method is known by the server but is not supported by the target resource.
+   409 Conflict: The request could not be completed due to a conflict with the current state of the resource.
+5. Server Error Responses (500–599)
+   500 Internal Server Error: The server encountered an unexpected condition that prevented it from fulfilling the request.
+   501 Not Implemented: The server does not support the functionality required to fulfill the request.
+   502 Bad Gateway: The server, while acting as a gateway or proxy, received an invalid response from the upstream server.
+   503 Service Unavailable: The server is not ready to handle the request, often due to being overloaded or down for maintenance.
+   504 Gateway Timeout: The server, while acting as a gateway or proxy, did not receive a timely response from the upstream server.
+
+
 1st:- create a package.json using command npm init
 
 2nd:- install dependecies for our project
@@ -294,6 +323,53 @@ const error = createHttpError(400, "Invalid Credentials");
  return next(error);
 }
 
+now talk about jwt authentication:-
+  when we are creating our new user we are also creating jwt (json web token) on that time for security purpose for this we need to install npm i jsonwebtoken package
+
+when we are login aur register we need to create token 
+json web token is made up of three things 
+1-header-{
+  "alg":"HS256",
+  "type":"JWT
+}
+2-Payload-{
+  "sub": "1234567890",
+  "name": "John Doe",
+  "admin": true
+}
+3-Signature-{
+  HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  secret)
+}
+
+syntax to create token to the register user
+
+registerController.ts
+
+const token=sign({sub:user._id},SECRET_PASSWORD,{expiresIn:'7d'})
+
+res.json({accessToken:token})
+
+this is all about registerController.ts
+
+
+now if you can make login controller by yourself 
+
+step1-in useRouter.ts make a route of login
+step2-create loginController.ts
+      - we are validating email and password 
+      -first check whether the email or password is empty or not
+      -if it is full then check whether the email is present in the database or not 
+      - if it is present then check the password of that email with the user.password
+      
+      example->  const isMatch=await bcrypt.compare(password,user.password as string)
+
+      -if it is compare and it return true then again create a token using sign method that is descibed above and response the accessToken
+
+both register and login is complete now
+
+now we will create book CRUD
 
 
 
@@ -308,31 +384,3 @@ const error = createHttpError(400, "Invalid Credentials");
 
 
 
-
-HTTP response status codes :
-
-1. Informational Responses (100–199)
-   100 Continue
-   101 Switching Protocols
-2. Successful Responses (200–299)
-   200 OK: The request was successful, and the server returned the requested resource.
-   201 Created: The request was successful, and a new resource was created.
-   202 Accepted: The request has been accepted for processing, but the processing is not complete.
-   204 No Content: The server successfully processed the request, but there is no content to send in the response.
-3. Redirection Messages (300–399)
-   301 Moved Permanently: The resource requested has been permanently moved to a new URL.
-   302 Found: The resource requested is temporarily available at a different URL.
-   304 Not Modified: The resource has not been modified since the last request.
-4. Client Error Responses (400–499)
-   400 Bad Request: The server could not understand the request due to invalid syntax.
-   401 Unauthorized: The client must authenticate itself to get the requested response.
-   403 Forbidden: The client does not have access rights to the content.
-   404 Not Found: The server cannot find the requested resource.
-   405 Method Not Allowed: The request method is known by the server but is not supported by the target resource.
-   409 Conflict: The request could not be completed due to a conflict with the current state of the resource.
-5. Server Error Responses (500–599)
-   500 Internal Server Error: The server encountered an unexpected condition that prevented it from fulfilling the request.
-   501 Not Implemented: The server does not support the functionality required to fulfill the request.
-   502 Bad Gateway: The server, while acting as a gateway or proxy, received an invalid response from the upstream server.
-   503 Service Unavailable: The server is not ready to handle the request, often due to being overloaded or down for maintenance.
-   504 Gateway Timeout: The server, while acting as a gateway or proxy, did not receive a timely response from the upstream server.
