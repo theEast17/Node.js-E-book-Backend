@@ -1,17 +1,15 @@
-import express, { Request, Response, NextFunction } from "express";
-import createHttpError, { HttpError } from "http-errors";
-import { config } from "./config/config";
+import express from "express";
 import globalErrorHandler from "./middlewares/globalErrorhandlers";
 import userRouter from "./user/userRouter";
 
 const app = express();
 
 app.get("/", (req, res, next) => {
-    const error=createHttpError(401,'something wrong here')
-    throw error
-//   res.json({ message: "hello" });
+  res.json({ message: "hello" });
 });
 
-app.use('/api/users',userRouter)
-app.use(globalErrorHandler)
+app.use(express.json())    // in readme.md line No.- 216
+
+app.use('/api/users',userRouter)   // in readme.md line No.- 179
+app.use(globalErrorHandler)        // in readme.md line No.- 103
 export default app;

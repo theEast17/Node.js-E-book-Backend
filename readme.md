@@ -104,14 +104,11 @@ the connection is done is done
 
 middleware:-Middleware in Express refers to functions that execute during the lifecycle of an HTTP request. They can manipulate the request and response objects, terminate the request-response cycle, or call the next middleware function in the stack. Middleware functions are essential for processing requests, handling errors, and implementing features like authentication and logging.
 
-                              next()      next(err)
+                              next()            next(err)
 
----
+| client |---> | Router |-->| Middleware |--->|request handler|--->|error handler |
+browser router any function node server error
 
-| | | | | middle | |Request| |global |
-| client |---> | Router |-->| ware |--->|handler|--->|error handler |  
-|--------| |--------| |--------| |-------| |--------------|
-browser routes any node error
 ex:'/' function server handler
 
 first request will be sent client to server through router if there is an authentication so it would be done by middleware the middleware is nothing but a function which call handle the http request and give the response. and if there is another middleware so it has a function called next() so it will go to te next middleware so on...
@@ -140,18 +137,16 @@ app.use(( err: HttpError,
 req: Request,
 res: Response,
 next: NextFunction)=>{
-   const statusCode = err.statusCode || 500;
-  return res.status(statusCode).json({
-    message: err.message,
-    errorStack: config.env === "development" ? err.stack : " ",
-  })
+const statusCode = err.statusCode || 500;
+return res.status(statusCode).json({
+message: err.message,
+errorStack: config.env === "development" ? err.stack : " ",
 })
-
-
+})
 
 12th:-now we needs to create routes (Rest Apis)
 
-REST API:REST APIs (Representational State Transfer Application Programming Interfaces) are a set of rules that developers follow when creating and using APIs. 
+REST API:REST APIs (Representational State Transfer Application Programming Interfaces) are a set of rules that developers follow when creating and using APIs.
 
 ------Common Methods in RESTful APIs
 GET: Retrieve information from the server (like getting a list of users).
@@ -173,11 +168,171 @@ POST /users - Create a new user.
 PUT /users/{id} - Update an existing user by ID.
 DELETE /users/{id} - Delete a user by ID.
 
-
-example :-   http://localhost:5000/api/users 
-            when you are post any data in the database you should have aware of some thing in mind 
+example :- http://localhost:5000/api/users
+when you are post any data in the database you should have aware of some thing in mind
 
             http://localhost:5000/ -> is our main domain
-            we are creating user register api 
+            we are creating user register api
             so we need to keep in mind that '/api/users'  - users=resource
-            we need to give plural form like users, books, products 
+            we need to give plural form like users, books, products
+
+------folder structure of apis
+step1:you are creatinf apis for user so you need to make seperate folder for it called "user"
+in that folder you have to create userRouter.ts
+
+    import express
+    const userRouter=express.Router()
+    export default userRouter
+
+    step2:-now we need to import userRouter into the app.ts so
+
+    app.ts
+
+    app.use('/api/users',userRouter())
+
+    step3:-  now you want to post the user so in userRouter.ts
+
+    userRouter.post('/register',...any function...)
+
+    step4:-post will get a function we nedd to define in seperate folder controller -> registerController.ts
+
+    const registerController=async(req,res,next)=>{
+      res.json({message:'hello world'})
+    }
+
+and so on.....
+
+there will be a three step when we are register user
+1- validation
+
+    in registerControl.js
+    const {name,email,password}=req.body
+    if(!name || !email || !password){
+    const error=createHttpError(400,'All fields are required')
+    return next(error)
+    }
+
+
+    here it will not give any data because of express does not understand json so we need to parse it so in app.ts:-
+
+    app.use(express.json())
+
+2-process
+
+we need to check whether the user is already exists or not
+so we need to crate a schema and interact with database
+
+create new folder called Models -> userModel.ts
+
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema(
+{
+name: {
+type: String,
+required: true,
+},
+email: {
+type: String,
+unique: true,
+required: true,
+},
+password: {
+type: String,
+required: true,
+},
+},
+{
+timestamps: true, // there is 2 properties 1- createdAt , 2- updatedAt
+}
+);
+
+const userModel=mongoose.model('User',userSchema) // you can also give third parameter here for overRide User which is name of collection ('User',userschema,'Author')
+export default userModel
+
+now we will check in database using userModel
+
+registerController.ts
+
+const userExists=await userModel.findOne({email}) // it returns null or document
+
+if(userExists){
+const error = createHttpError(400, "User already exists with this email");  
+ return next(error);
+}
+
+// if user not exists then we need to store into the database
+// we need to store passwords in hash bcrypt form
+
+const hashPassword= await bcrypt.hash(password,10) // there are 2 parameters in hash 1st name of property and 2nd is saltOnRounds  
+saltRounds :
+example:- let say user A enter password secret - sssssss -> this is bcrypt form of password
+let say user B enter password secret - sssssss -> this is bcrypt form of password
+
+          so the security is not good here if the hacker hack the password then he/she knows that the hash of the secret is sssssss  so we need more security so there is saltOnRounds is second parameter in hash(property,saltOnRounds)
+
+          The saltRounds value specifies the number of iterations used to create the salt and hash the password, making the hashing process more time-consuming
+
+3-response
+
+// now we are ready to store into the database
+
+const newUser=await userModel.create({
+name,
+email,
+password:hashPassword
+})
+
+if (newUser) {
+res.status(201).json({
+_id: newUser._id,
+name: newUser.name,
+email: newUser.email,
+})
+} else {
+const error = createHttpError(400, "Invalid Credentials");  
+ return next(error);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HTTP response status codes :
+
+1. Informational Responses (100–199)
+   100 Continue
+   101 Switching Protocols
+2. Successful Responses (200–299)
+   200 OK: The request was successful, and the server returned the requested resource.
+   201 Created: The request was successful, and a new resource was created.
+   202 Accepted: The request has been accepted for processing, but the processing is not complete.
+   204 No Content: The server successfully processed the request, but there is no content to send in the response.
+3. Redirection Messages (300–399)
+   301 Moved Permanently: The resource requested has been permanently moved to a new URL.
+   302 Found: The resource requested is temporarily available at a different URL.
+   304 Not Modified: The resource has not been modified since the last request.
+4. Client Error Responses (400–499)
+   400 Bad Request: The server could not understand the request due to invalid syntax.
+   401 Unauthorized: The client must authenticate itself to get the requested response.
+   403 Forbidden: The client does not have access rights to the content.
+   404 Not Found: The server cannot find the requested resource.
+   405 Method Not Allowed: The request method is known by the server but is not supported by the target resource.
+   409 Conflict: The request could not be completed due to a conflict with the current state of the resource.
+5. Server Error Responses (500–599)
+   500 Internal Server Error: The server encountered an unexpected condition that prevented it from fulfilling the request.
+   501 Not Implemented: The server does not support the functionality required to fulfill the request.
+   502 Bad Gateway: The server, while acting as a gateway or proxy, received an invalid response from the upstream server.
+   503 Service Unavailable: The server is not ready to handle the request, often due to being overloaded or down for maintenance.
+   504 Gateway Timeout: The server, while acting as a gateway or proxy, did not receive a timely response from the upstream server.
