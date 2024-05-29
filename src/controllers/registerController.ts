@@ -47,7 +47,7 @@ const registerController = async (
       expiresIn: "7d",
     });
 
-    res.json({ accessToken: token });
+    res.status(201).json({ accessToken: token });
 
     // if (newUser) {
     //     res.status(201).json({
