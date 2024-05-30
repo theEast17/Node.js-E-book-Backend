@@ -5,6 +5,7 @@ import path from "node:path";
 import authenticate from "../middlewares/authenticate";
 import updateBook from "../controllers/updateBook";
 import getBooks from "../controllers/getBooks";
+import singleBook from "../controllers/singleBook";
 
 const bookRouter = express.Router();
 
@@ -33,9 +34,8 @@ bookRouter.put(
   updateBook
 );
 
-bookRouter.get(
-  "/",
-  getBooks
-);
+bookRouter.get("/", getBooks);
+
+bookRouter.get("/:bookId", singleBook);
 
 export default bookRouter;

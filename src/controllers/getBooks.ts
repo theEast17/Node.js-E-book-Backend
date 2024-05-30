@@ -5,7 +5,7 @@ import bookModel from "../models/bookModel";
 const getBooks=async(req: Request, res: Response, next: NextFunction)=>{
     try {
         const book=await bookModel.find()
-        res.json(book)
+        res.json(book[0]._id)
     } catch (error) {
         return next(createHttpError(500,'Error while getting books'))
     }
