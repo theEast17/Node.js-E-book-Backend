@@ -4,6 +4,7 @@ import path from "node:path";
 import createHttpError from "http-errors";
 import bookModel from "../models/bookModel";
 import fs from "node:fs";
+import { AuthRequest } from "../middlewares/authenticate";
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
   const { title, genre } = req.body;
@@ -37,9 +38,11 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
       format: "pdf",
     });
 
+    const _req=req as AuthRequest
+
     const newBook = await bookModel.create({
       title,
-      author: "6656e6947de76859e5a62e15",
+      author: _req.userId,
       genre,
       coverImage: uploadResult.secure_url,
       file: bookUploadResult.secure_url,
@@ -53,8 +56,6 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await fs.promises.unlink(filePath);
     await fs.promises.unlink(bookFilePath);
-    console.log(`Successfully deleted file at ${filePath}`);
-    console.log(`Successfully deleted file at ${bookFilePath}`);
   } catch (error) {
     return next(createHttpError(500, "Error while deleting file."));
   }
