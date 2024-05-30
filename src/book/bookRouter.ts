@@ -4,6 +4,7 @@ import multer from "multer";
 import path from "node:path";
 import authenticate from "../middlewares/authenticate";
 import updateBook from "../controllers/updateBook";
+import getBooks from "../controllers/getBooks";
 
 const bookRouter = express.Router();
 
@@ -30,6 +31,11 @@ bookRouter.put(
     { name: "file", maxCount: 1 },
   ]),
   updateBook
+);
+
+bookRouter.get(
+  "/",
+  getBooks
 );
 
 export default bookRouter;
