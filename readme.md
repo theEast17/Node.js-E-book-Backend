@@ -371,6 +371,56 @@ both register and login is complete now
 
 now we will create book CRUD
 
+first create book 
+api=http://localhost:5000/api/books/create
+
+in this we have properties like 
+title,
+author,
+genre,
+img,
+file
+
+there will be file so this is our problem that how can we store book image into the database or file into the database
+
+so there is livrary called multer which is very important while working with forms in frontend we upload files or images
+
+package-npm i --save multer
+
+Multer is a middleware for handling "multipart/form-data", which is primarily used for uploading files in Node.js applications.
+
+
+so this is middleware between the routes 
+
+in bookRouter.ts
+
+<!-- syntax -->
+
+const upload = multer({
+  dest: path.resolve(__dirname, "../../public/data/uploads"),
+  limits: { fileSize: 3e7 }, // 30mb
+});
+
+bookRouter.post(
+  "/create",
+  upload.fields([
+    { name: "coverImage", maxCount: 1 },      
+    { name: "file", maxCount: 1 },
+  ]),
+  createBook
+);
+
+now we will do everything fine and we need to store this image on "cloudinary"
+
+
+npm i cloudinary
+
+Cloudinary is a cloud-based service that provides comprehensive solutions for managing, optimizing, and delivering images and videos for web and mobile applications. It offers a range of features that help developers and businesses handle their media assets efficiently.
+
+
+
+
+
 
 
 
