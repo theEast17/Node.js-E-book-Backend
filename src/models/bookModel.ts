@@ -31,5 +31,5 @@ const bookSchema = new mongoose.Schema<Book>(
   }
 );
 
-const userModel=mongoose.model<Book>('Book',bookSchema)   // you can also give third parameter here for overRide User which is name of collection   ('User',userschema,'Author')
-export default userModel
+const bookModel=mongoose.model<Book>('Book',bookSchema)   // you can also give third parameter here for overRide User which is name of collection   ('User',userschema,'Author')
+export default bookModel
