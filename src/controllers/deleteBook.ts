@@ -23,7 +23,6 @@ const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
     const bookfileSplits = book.file.split("/");
     const bookPublicId = bookfileSplits.at(-2) + "/" + bookfileSplits.at(-1);
 
-    console.log(bookPublicId);
     await cloudinary.uploader.destroy(coverPublicId);
     await cloudinary.uploader.destroy(bookPublicId, {
       resource_type: "raw",
