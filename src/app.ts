@@ -2,8 +2,17 @@ import express from "express";
 import globalErrorHandler from "./middlewares/globalErrorhandlers";
 import userRouter from "./user/userRouter";
 import bookRouter from "./book/bookRouter";
+import  cors from "cors";
+import { config } from "./config/config";
 
 const app = express();
+
+app.use(cors({
+  origin:config.frontendDomain,
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
+}))
 
 app.get("/", (req, res, next) => {
   res.json({ message: "hello" });

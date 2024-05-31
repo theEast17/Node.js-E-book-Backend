@@ -101,10 +101,10 @@ why we need mongoose->
 6>click on overview-> connect -> drivers paste it into the env file and called the name whatever you want
 -the copied link you have to paste your database name after .mongodb.net/e-Book <- this is your database name
 
-example:-mongodb+srv://nagarpoorv2001:khushi@cluster0.j2oi1wt.mongodb. net/?retryWrites=true&w=majority&appName=Cluster0
+example:-mongodb+srv://nagarpoorv2001:xzy@cluster0.j2oi1wt.mongodb. net/?retryWrites=true&w=majority&appName=Cluster0
 
 you have to do like :
-mongodb+srv://nagarpoorv2001:khushi@cluster0.j2oi1wt.mongodb.net/E-book?retryWrites=true&w=majority&appName=Cluster0
+mongodb+srv://nagarpoorv2001:xzy@cluster0.j2oi1wt.mongodb.net/E-book?retryWrites=true&w=majority&appName=Cluster0
 
 now all the setup of backend is done
 
@@ -354,7 +354,7 @@ res.json({accessToken:token})
 this is all about registerController.ts
 
 
-now if you can make login controller by yourself 
+now you can make login controller by yourself 
 
 step1-in useRouter.ts make a route of login
 step2-create loginController.ts
@@ -410,12 +410,231 @@ bookRouter.post(
   createBook
 );
 
-now we will do everything fine and we need to store this image on "cloudinary"
+now we have done everything fine and we need to store this image on "cloudinary"
 
 
 npm i cloudinary
 
 Cloudinary is a cloud-based service that provides comprehensive solutions for managing, optimizing, and delivering images and videos for web and mobile applications. It offers a range of features that help developers and businesses handle their media assets efficiently.
+
+step1: create file in config-> clodinary.ts
+
+and now we will copy the basic code of cloudinary to .ts file and export it and there would be a api which should be private and we will store into the .env  
+
+now we have fields called file and coverImage
+and we want to store the picture there and its link would be stored into the mongodb
+
+how to store?
+
+  --this is for image
+
+  --from "req.files" we will get files using multer there would be pdf and image
+  --here coverImageMimeType=extension of image ex. png,jpg,jpeg
+  --the files is object and there is two things first image and second file 
+  in req.files would be look like this
+  {
+    coverImage:[
+      {
+        fileName:xxx,
+        mimeType:'name of image include extension  ex: 1a23.jpg'
+      }
+    ],
+    file:[
+      {
+        fileName:xxx,
+        secure_url:ddd
+      }
+    ]
+  }
+
+  we have just get the filename for each and access where it needs 
+
+  now talk about file path do we need to make folder in root and move picture there using path.resolve 
+
+  path is coming from import path from 'node:path'
+  __dirname means if there is folder then store there otherwise make a folder and store 
+
+  so we have first get the all fields and as syntax we have only put there where we want in both image and files
+
+  const files = req.files as { [filename: string]: Express.Multer.File[] };
+  const coverImageMimeType = files.coverImage[0].mimetype.split("/").at(-1);
+   const fileName = files.coverImage[0].filename;
+  const filePath = path.resolve(
+    __dirname,
+    "../../public/data/uploads",
+    fileName
+  );
+ const uploadResult = await cloudinary.uploader.upload(filePath, {
+      filename_override: fileName,
+      folder: "book-covers",
+      format: coverImageMimeType,
+    });
+
+--this is for pdf file
+
+const bookFileName = files.file[0].filename;
+  const bookFilePath = path.resolve(
+    __dirname,
+    "../../public/data/uploads",
+    bookFileName
+  );
+    const bookUploadResult = await cloudinary.uploader.upload(bookFilePath, {
+      resource_type: "raw",
+      filename_override: bookFileName,
+      folder: "book-pdfs",
+      format: "pdf",
+    });
+
+    for pdf you need to give access in cludinary settings-> security -> at the last you need to check true to pdf and zip folder
+
+
+now the most important part authentication when you create book using middleware
+we need to first create authenticate.ts
+
+bookRouter.post(
+  "/create",
+  authenticate,
+  upload.fields([
+    { name: "coverImage", maxCount: 1 },
+    { name: "file", maxCount: 1 },
+  ]),
+  createBook
+);
+
+bookRouter.put(
+  "/update/:bookId",
+  authenticate,
+  upload.fields([
+    { name: "coverImage", maxCount: 1 },
+    { name: "file", maxCount: 1 },
+  ]),
+  updateBook
+);
+
+bookRouter.get("/", getBooks);
+
+bookRouter.get("/:bookId", singleBook);
+bookRouter.delete("/:bookId", authenticate, deleteBook);
+
+these are the final routes below protected are update delete and create because for that we need login user 
+we need to create route like this for both create and update because in both we need authentication 
+
+authenticate.ts
+
+
+import { NextFunction, Request, Response } from "express";
+import createHttpError from "http-errors";
+import { verify } from "jsonwebtoken";
+import { config } from "../config/config";
+
+export interface AuthRequest extends Request {
+  userId: string;
+}
+
+when we login at that time we create a jwt token so when we create something we need jwt , right !
+
+so first it will check token in the header whether the token is there or not 
+
+
+token = Bearer nsdsdmjwiwwdmwkdmwjdiwjdijdkmw.1223kfmfmdkdmkdwkowriri.ewijdmdmsmdkdmkd
+
+from this we will get nsdsdmjwiwwdmwkdmwjdiwjdijdkmw.1223kfmfmdkdmkdwkowriri.ewijdmdmsmdkdmkd using split method
+
+this would be verify with the secret key that we have created before and if they both match then it is accepted and no error occur and the result would be store decoded
+
+and is decoded.sub we have our main userId which we will send and authenticate user 
+
+
+
+const authenticate = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.header("Authorization");
+  if (!token) {
+    return next(createHttpError(401, "Authorization token is required."));
+  }
+
+  try {
+    const parsedToken = token.split(" ")[1];
+    const decoded = verify(parsedToken, config.jwtSecret as string);
+    const _req = req as AuthRequest;
+  
+    if (!decoded || !decoded.sub) {
+      return next(createHttpError(401, "Invalid token."));
+    }
+
+    _req.userId = decoded.sub as string;
+    next();
+  } catch (err) {
+    return next(createHttpError(401, "Token expired."));
+  }
+};
+
+export default authenticate;
+
+
+now you can update by yourself for code you can see the code updateBook.ts
+
+
+after that get all the books 
+
+after that get single book using bookid
+
+now last we want to delete the single book 
+
+  deleteBook.ts
+
+  there is simple code fine the bookId and delete it 
+
+
+  await bookModel.deleteOne({ _id: bookId });
+
+  it will delete the records from database but how we can delete the record from the cloudinary that is we want
+
+  if we want to delete pdf then we want publib id of that pdf 
+  if we want to delete image then we want publib id of that image
+
+  how to get public id
+
+  const coverFileSplit = book.coverImage.split("/");
+    const coverPublicId =
+      coverFileSplit.at(-2) + "/" + coverFileSplit.at(-1)?.split(".").at(-2);
+
+    const bookfileSplits = book.file.split("/");
+    const bookPublicId = bookfileSplits.at(-2) + "/" + bookfileSplits.at(-1);
+
+    await cloudinary.uploader.destroy(coverPublicId);
+    await cloudinary.uploader.destroy(bookPublicId, {
+      resource_type: "raw",
+    }); 
+
+all the crud operation has been dne here now we remain with one thing that is cors
+
+so what is cors?
+
+  CORS, which stands for Cross-Origin Resource Sharing, is a security feature implemented by web browsers to control how web applications interact with resources outside their own domain.
+
+  CORS involves the use of HTTP headers that allow servers to describe the set of origins that are permitted to read information using web browsers.
+
+  Example Scenario
+  Consider a web application hosted at https://app.example.com that needs to fetch data from an API hosted at https://api.example.com. Here’s how CORS can be set up on the server at https://api.example.com to allow this:
+
+in app.ts
+  const corsOptions = {
+  origin: 'https://app.example.com',
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+
+so this is all about backend api full function details... 
+
+HAVE A GOOD CODE.....!
+
+
+
+
 
 
 
