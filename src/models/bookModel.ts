@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 
-import { Book } from "../types/bookTypes";
+// import { Book } from "../types/bookTypes";
+
+export interface Book {
+  title: string;
+  author: mongoose.Schema.Types.ObjectId;
+  genre: string;
+  coverImage: string;
+  file: string;
+}
 
 const bookSchema = new mongoose.Schema<Book>(
   {
@@ -10,7 +18,7 @@ const bookSchema = new mongoose.Schema<Book>(
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      unique: true,
+      ref:'User',
       required: true,
     },
     genre: {

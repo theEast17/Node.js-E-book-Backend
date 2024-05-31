@@ -17,6 +17,11 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     const parsedToken = token.split(" ")[1];
     const decoded = verify(parsedToken, config.jwtSecret as string);
     const _req = req as AuthRequest;
+  
+    if (!decoded || !decoded.sub) {
+      return next(createHttpError(401, "Invalid token."));
+    }
+
     _req.userId = decoded.sub as string;
     next();
   } catch (err) {

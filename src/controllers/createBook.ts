@@ -38,7 +38,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
       format: "pdf",
     });
 
-    const _req=req as AuthRequest
+    const _req = req as AuthRequest;
 
     const newBook = await bookModel.create({
       title,
@@ -59,7 +59,6 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
   } catch (error) {
     return next(createHttpError(500, "Error while deleting file."));
   }
-
 };
 
 export default createBook;
