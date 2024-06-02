@@ -7,6 +7,7 @@ export interface Book {
   author: mongoose.Schema.Types.ObjectId;
   genre: string;
   coverImage: string;
+  description:string;
   file: string;
 }
 
@@ -16,6 +17,10 @@ const bookSchema = new mongoose.Schema<Book>(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      require: true,
+  },
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

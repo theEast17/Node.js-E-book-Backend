@@ -7,7 +7,7 @@ import fs from "node:fs";
 import { AuthRequest } from "../middlewares/authenticate";
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
-  const { title, genre } = req.body;
+  const { title, genre,description } = req.body;
   const files = req.files as { [filename: string]: Express.Multer.File[] };
   const coverImageMimeType = files.coverImage[0].mimetype.split("/").at(-1);
   const fileName = files.coverImage[0].filename;
@@ -44,6 +44,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
       title,
       author: _req.userId,
       genre,
+      description,
       coverImage: uploadResult.secure_url,
       file: bookUploadResult.secure_url,
     });
