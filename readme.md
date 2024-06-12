@@ -50,8 +50,9 @@ like typescript, ts-node, nodemon. @types/node
 
 4th:- add gitIgnore extension is gitignore
 press CTRL+SHIFT+P
-.gitignore
-node browser press enter
+1>first search .gitignore (add gitignore)
+2>then search node browser 
+-press enter
 
 5th:- add "dev" script in package.json
 "dev":"nodemon server.ts"
