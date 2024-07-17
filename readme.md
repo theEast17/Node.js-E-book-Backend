@@ -1,3 +1,11 @@
+req.params: Contains route parameters (in the path portion of the URL) as key-value pairs.
+req.query: Contains the URL query string parameters as key-value pairs.
+req.body: Contains the parsed body of the request (for example, form data or JSON).
+req.headers: Contains the headers sent by the client.
+req.method: Contains the HTTP method of the request (e.g., GET, POST).
+req.url: Contains the full URL of the request.
+req.path: Contains the path portion of the URL.
+
 HTTP response status codes :
 
 1. Informational Responses (100–199)
